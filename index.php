@@ -1,63 +1,86 @@
-<?php
+<?php 
 require 'connection.php'; 
-$stmt = $pdo->query("SELECT * FROM barang ORDER BY id DESC"); 
-$barang = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+$barang = $pdo->query("SELECT * FROM barang ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC); 
+$total = count($barang);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Inventaris Gudang</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Dashboard | Hafidz</title>
 </head>
-<body class="bg-light">
-<div class="container mt-5">
-    <div class="card shadow border-0 rounded-4">
-        <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary fw-bold mb-0"><i class="bi bi-box-seam me-2"></i>Daftar Barang Gudang</h2>
+<body>
+<div id="wrapper">
+    <nav id="sidebar">
+        <div class="sidebar-header"><h5><i class="bi bi-cpu-fill me-2"></i>GUDANG IT</h5></div>
+        <ul>
+            <li class="active"><a href="index.php"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+            <li><a href="analytics.php"><i class="bi bi-graph-up me-2"></i> Analytics</a></li>
+            <li><a href="tambah.php"><i class="bi bi-plus-circle me-2"></i> Tambah Barang</a></li>
+        </ul>
+    </nav>
+
+    <div id="content">
+        <h2 class="mb-4"><i class="bi bi-house-door me-2"></i>Inventory Dashboard</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 border-start border-primary border-4 shadow-sm">
+                    <div class="text-muted small fw-bold">TOTAL JENIS BARANG</div>
+                    <h3 class="mb-0 text-primary"><?= $total ?> Item <i class="bi bi-box-seam float-end opacity-50"></i></h3>
                 </div>
-                <a href="tambah.php" class="btn btn-primary px-4 shadow-sm"><i class="bi bi-plus-lg me-1"></i> Tambah Barang</a>
             </div>
+        </div>
+
+        <div class="card p-4 shadow-sm">
+            <h5 class="mb-3 text-secondary fw-bold"><i class="bi bi-table me-2"></i>Daftar Inventaris Terkini</h5>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-dark">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <th width="5%" class="text-center py-3">No</th>
-                            <th width="20%" class="py-3">Kode Barang</th>
-                            <th width="40%" class="py-3">Nama Barang</th>
-                            <th width="15%" class="text-center py-3">Stok</th>
-                            <th width="20%" class="text-center py-3">Aksi</th> 
+                            <th><i class="bi bi-hash"></i> Kode</th>
+                            <th><i class="bi bi-tag"></i> Nama Barang</th>
+                            <th><i class="bi bi-stack"></i> Stok</th>
+                            <th class="text-center"><i class="bi bi-gear"></i> Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (count($barang) > 0): ?>
-                            <?php $no = 1; foreach($barang as $row): ?> 
-                            <tr>
-                                <td class="text-center text-muted"><?= $no++; ?></td> 
-                                <td><span class="badge bg-secondary px-2 py-1"><?= htmlspecialchars($row['kode_barang']); ?></span></td>
-                                <td class="fw-semibold text-dark"><?= htmlspecialchars($row['nama_barang']); ?></td>
-                                <td class="text-center">
-                                    <span class="badge <?= $row['stok'] < 10 ? 'bg-danger' : 'bg-success'; ?> px-3 py-2 fs-6">
-                                        <?= htmlspecialchars($row['stok']); ?>
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <a href="edit.php?id=<?= $row['id']; ?>" class="btn btn-sm btn-outline-warning fw-bold"><i class="bi bi-pencil-square"></i> Edit</a> 
-                                    <a href="delete.php?id=<?= $row['id']; ?>" class="btn btn-sm btn-outline-danger fw-bold" onclick="return confirm('Yakin hapus <?= htmlspecialchars($row['nama_barang']); ?>?')"><i class="bi bi-trash"></i> Hapus</a> 
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr><td colspan="5" class="text-center py-5 text-muted"><h5>Gudang masih kosong</h5></td></tr>
-                        <?php endif; ?> 
+                        <?php foreach($barang as $b): ?>
+                        <tr>
+                            <td><span class="badge bg-secondary"><?= htmlspecialchars($b['kode_barang']) ?></span></td>
+                            <td class="fw-bold"><?= htmlspecialchars($b['nama_barang']) ?></td>
+                            <td><span class="badge <?= $b['stok'] < 10 ? 'bg-danger':'bg-success' ?> rounded-pill px-3"><?= $b['stok'] ?></span></td>
+                            <td class="text-center">
+                                <a href="edit.php?id=<?= $b['id'] ?>" class="btn btn-sm btn-outline-primary border-0"><i class="bi bi-pencil-square"></i></a>
+                                <button onclick="del(<?= $b['id'] ?>)" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function del(id) {
+    Swal.fire({ 
+        title: 'Hapus Barang?', 
+        text: "Data yang dihapus tidak dapat dikembalikan!",
+        icon: 'warning', 
+        showCancelButton: true, 
+        confirmButtonColor: '#4e73df',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Hapus!'
+    }).then(r => {
+        if(r.isConfirmed) window.location.href = 'delete.php?id='+id;
+    });
+}
+</script>
 </body>
 </html>
